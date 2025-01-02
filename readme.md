@@ -7,6 +7,7 @@
 ## How to run tests
 
 * Run `go test -coverprofile=coverage.out ./...`
+* To check the test coverage run `go tool cover -func=coverage.out`
 
 ## API Documentation
 
