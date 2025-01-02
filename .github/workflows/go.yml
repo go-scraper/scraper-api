@@ -40,4 +40,4 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t my-go-app 
+          docker build -t go-scraper-api .
