@@ -15,6 +15,9 @@ import (
 func TestFetchPageInfo(test_type *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
+	client := &http.Client{
+		Transport: httpmock.DefaultTransport,
+	}
 
 	tests := []struct {
 		name       string
@@ -53,7 +56,7 @@ func TestFetchPageInfo(test_type *testing.T) {
 					httpmock.NewStringResponder(test_data.mockStatus, test_data.mockBody))
 			}
 
-			pageInfo, err := FetchPageInfo(test_data.mockURL)
+			pageInfo, err := FetchPageInfo(client, test_data.mockURL)
 
 			if test_data.expectErr {
 				if err == nil {

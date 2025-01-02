@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"net/http"
 	"scraper/models"
 	"testing"
 
@@ -12,6 +13,9 @@ import (
 func TestCheckURLStatus(test_type *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
+	client := &http.Client{
+		Transport: httpmock.DefaultTransport,
+	}
 
 	// Mock URLs
 	urls := []models.URLStatus{
@@ -29,7 +33,7 @@ func TestCheckURLStatus(test_type *testing.T) {
 	// Mock response for error (e.g., network failure)
 	httpmock.RegisterResponder("GET", "http://example.com/error", httpmock.NewErrorResponder(fmt.Errorf("network error")))
 
-	inaccessibleCount := CheckURLStatus(urls, 0, len(urls))
+	inaccessibleCount := CheckURLStatus(client, urls, 0, len(urls))
 
 	assert.Equal(test_type, 2, inaccessibleCount, "The count of inaccessible URLs should be 2")
 	assert.NotNil(test_type, urls[2].Error, "Expected an error for the network failure URL")

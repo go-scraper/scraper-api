@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -16,13 +17,19 @@ import (
 
 func ScrapeHandler(context *gin.Context) {
 	baseURL := context.Query("url")
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, // Disable TLS verification
+		},
+	}
+
 	if baseURL == "" {
 		logger.Debug("URL query parameter is required")
 		context.JSON(http.StatusBadRequest, gin.H{"error": "url query parameter is required"})
 		return
 	}
 
-	pageInfo, err := services.FetchPageInfo(baseURL)
+	pageInfo, err := services.FetchPageInfo(client, baseURL)
 	if err != nil {
 		logger.Error(err)
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch page info"})
@@ -30,13 +37,18 @@ func ScrapeHandler(context *gin.Context) {
 	}
 
 	requestID := storage.StorePageInfo(pageInfo)
-	inaccessibleCount := services.CheckURLStatus(pageInfo.URLs, 0, min(config.PageSize, len(pageInfo.URLs)))
+	inaccessibleCount := services.CheckURLStatus(client, pageInfo.URLs, 0, min(config.PageSize, len(pageInfo.URLs)))
 	totalPages := utils.CalculateTotalPages(len(pageInfo.URLs), config.PageSize)
 
 	context.JSON(http.StatusOK, utils.BuildPageResponse(requestID, 1, totalPages, pageInfo, inaccessibleCount, 0, min(config.PageSize, len(pageInfo.URLs))))
 }
 
 func PageHandler(context *gin.Context) {
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, // Disable TLS verification
+		},
+	}
 	requestID := context.Param("id")
 	pageNumStr := context.Param("page")
 
@@ -61,7 +73,7 @@ func PageHandler(context *gin.Context) {
 		return
 	}
 
-	inaccessibleCount := services.CheckURLStatus(pageInfo.URLs, start, end)
+	inaccessibleCount := services.CheckURLStatus(client, pageInfo.URLs, start, end)
 	totalPages := utils.CalculateTotalPages(len(pageInfo.URLs), config.PageSize)
 
 	context.JSON(http.StatusOK, utils.BuildPageResponse(requestID, pageNum, totalPages, pageInfo, inaccessibleCount, start, end))

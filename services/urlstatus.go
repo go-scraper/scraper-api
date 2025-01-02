@@ -18,7 +18,7 @@ import (
 //
 // Returns:
 // inaccessible URL count.
-func CheckURLStatus(urls []models.URLStatus, start, end int) int {
+func CheckURLStatus(client *http.Client, urls []models.URLStatus, start, end int) int {
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 	var inaccessibleCount int
@@ -29,7 +29,7 @@ func CheckURLStatus(urls []models.URLStatus, start, end int) int {
 		go func(idx int) {
 			defer wg.Done()
 
-			resp, err := http.Get(urls[idx].URL)
+			resp, err := client.Get(urls[idx].URL)
 			if err != nil {
 				logger.Error(err)
 
