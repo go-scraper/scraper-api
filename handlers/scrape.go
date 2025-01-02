@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"scraper/config"
 	"scraper/logger"
@@ -27,6 +28,10 @@ func ScrapeHandler(context *gin.Context) {
 		logger.Debug("URL query parameter is required")
 		context.JSON(http.StatusBadRequest, gin.H{"error": "url query parameter is required"})
 		return
+	} else {
+		if !strings.HasPrefix(baseURL, "http://") && !strings.HasPrefix(baseURL, "https://") {
+			baseURL = "http://" + baseURL
+		}
 	}
 
 	pageInfo, err := services.FetchPageInfo(client, baseURL)
