@@ -71,7 +71,7 @@ func TestScrapeHandler(test_type *testing.T) {
 	for _, test_data := range tests {
 		test_type.Run(test_data.name, func(test_type *testing.T) {
 
-			patchFetchPageInfo := monkey.Patch(services.FetchPageInfo, func(url string) (*models.PageInfo, error) {
+			patchFetchPageInfo := monkey.Patch(services.FetchPageInfo, func(client *http.Client, url string) (*models.PageInfo, error) {
 				return test_data.mockPageInfo, test_data.mockError
 			})
 			defer patchFetchPageInfo.Unpatch()

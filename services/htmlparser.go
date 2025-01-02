@@ -10,8 +10,8 @@ import (
 	"golang.org/x/net/html"
 )
 
-func FetchPageInfo(baseURL string) (*models.PageInfo, error) {
-	resp, err := http.Get(baseURL)
+func FetchPageInfo(client *http.Client, baseURL string) (*models.PageInfo, error) {
+	resp, err := client.Get(baseURL)
 	if err != nil {
 		logger.Error(err)
 		return nil, err

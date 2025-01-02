@@ -37,3 +37,7 @@ jobs:
       - name: Show coverage
         run: |
           go tool cover -func=coverage.out
+
+      - name: Build Docker image
+        run: |
+          docker build -t my-go-app 
