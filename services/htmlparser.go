@@ -6,8 +6,10 @@ import (
 	"net/url"
 	"scraper/logger"
 	"scraper/models"
+	"strings"
 
 	"golang.org/x/net/html"
+	"golang.org/x/net/publicsuffix"
 )
 
 func FetchPageInfo(client *http.Client, baseURL string) (*models.PageInfo, error) {
@@ -86,11 +88,14 @@ func resolveURL(baseURL, href string) string {
 	return base.ResolveReference(rel).String()
 }
 
-func isInternal(baseURL, fullURL string) bool {
-	//TODO: Host name comparison might not work. Fix here!
-	base, _ := url.Parse(baseURL)
-	full, _ := url.Parse(fullURL)
-	return base.Host == full.Host
+func isInternal(baseUrl, scrappedUrl string) bool {
+	baseUrlParsed, _ := url.Parse(baseUrl)
+	scrappedUrlParsed, _ := url.Parse(scrappedUrl)
+
+	baseUrlTld, _ := publicsuffix.EffectiveTLDPlusOne(baseUrlParsed.Host)
+	scrappedUrlTld, _ := publicsuffix.EffectiveTLDPlusOne(scrappedUrlParsed.Host)
+
+	return strings.EqualFold(baseUrlTld, scrappedUrlTld)
 }
 
 func containsPasswordInput(node *html.Node) bool {
