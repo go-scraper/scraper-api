@@ -5,6 +5,8 @@ import (
 	"math"
 	"scraper/config"
 	"scraper/models"
+
+	"github.com/gin-gonic/gin"
 )
 
 func CalculateTotalPages(totalItems, pageSize int) int {
@@ -24,6 +26,7 @@ func min(a, b int) int {
 	return b
 }
 
+// This is to build the response after a successful scraping.
 func BuildPageResponse(requestID string, pageNum, totalPages int, pageInfo *models.PageInfo, inaccessible, start, end int) models.PageResponse {
 	var prevPage, nextPage *string
 	if pageNum > 1 {
@@ -58,4 +61,9 @@ func BuildPageResponse(requestID string, pageNum, totalPages int, pageInfo *mode
 			},
 		},
 	}
+}
+
+// This is to build the error response.
+func BuildErrorResponse(message string) gin.H {
+	return gin.H{"error": message}
 }

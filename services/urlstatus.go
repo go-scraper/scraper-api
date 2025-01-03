@@ -10,14 +10,6 @@ import (
 // This is to check the URL status and decide wether it is accessible or not.
 // It marks the status of each collected URL.
 // Since the URL collection can be huge we check status based on given start and end positions.
-// Parameters:
-//
-//	urls - Collected URLs by scrapping a web page.
-//	start - starting position of the URL set.
-//	end - Ending position of the URL set.
-//
-// Returns:
-// inaccessible URL count.
 func CheckURLStatus(client *http.Client, urls []models.URLStatus, start, end int) int {
 	var wg sync.WaitGroup
 	var mu sync.Mutex
@@ -37,7 +29,7 @@ func CheckURLStatus(client *http.Client, urls []models.URLStatus, start, end int
 				inaccessibleCount++
 				mu.Unlock()
 
-				urls[idx].Error = err
+				urls[idx].Error = err.Error()
 				return
 			}
 
