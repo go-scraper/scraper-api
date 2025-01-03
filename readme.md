@@ -4,7 +4,7 @@ An API service to scrape a URL and get a summary.
 
 ## High level architecture
 
-![High level diagram](./docs/lucytech.jpg)
+![High level diagram](./docs/highlevel_arch_diagram.jpg)
 
 ### Components
 

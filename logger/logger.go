@@ -5,6 +5,7 @@ import (
 	"os"
 )
 
+// Set custom loggers for each log level
 var (
 	DEBUG = log.New(os.Stdout, "[scraper-DEBUG] ", log.LstdFlags)
 	INFO  = log.New(os.Stdout, "[scraper-INFO] ", log.LstdFlags)

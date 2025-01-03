@@ -63,7 +63,7 @@ func TestScrapeHandler(test_type *testing.T) {
 			mockRequestID:  "",
 			expectedStatus: http.StatusInternalServerError,
 			expectedBody: map[string]interface{}{
-				"error": "failed to fetch page info",
+				"error": "Failed to fetch page info",
 			},
 		},
 	}

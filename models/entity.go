@@ -13,5 +13,5 @@ type PageInfo struct {
 type URLStatus struct {
 	URL        string `json:"url"`
 	HTTPStatus int    `json:"http_status"`
-	Error      error  `json:"error"`
+	Error      string `json:"error"`
 }
