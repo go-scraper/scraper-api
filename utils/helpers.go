@@ -41,7 +41,7 @@ func BuildPageResponse(requestID string, pageNum, totalPages int, pageInfo *mode
 	return models.PageResponse{
 		RequestID: requestID,
 		Pagination: models.Pagination{
-			PageSize:    config.PageSize,
+			PageSize:    config.GetURLCheckPageSize(),
 			CurrentPage: pageNum,
 			TotalPages:  totalPages,
 			PrevPage:    prevPage,
