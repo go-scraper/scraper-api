@@ -1,0 +1,18 @@
+run:
+  timeout: 2m
+
+linters:
+  enable:
+    - govet
+    - errcheck
+    - staticcheck
+    - unused
+    - gocyclo
+    - gofmt
+    - lll
+  disable:
+    - funlen 
+
+linters-settings:
+  lll:
+    line-length: 100  # Set max line length

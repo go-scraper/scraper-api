@@ -28,8 +28,10 @@ func init() {
 	appPort = getEnv("APP_PORT", defaultAppPort)
 
 	urlCheckPageSize = parseEnvAsInt("URL_STATUS_CHECK_PAGE_SIZE", defaultURLCheckPageSize)
-	outgoingScrapeRequestTimeout = parseEnvAsInt("OUT_GOING_SCRAPE_REQ_TIMEOUT", defaultOutgoingScrapeRequestTimeout)
-	outgoingAccessibilityCheckTimeout = parseEnvAsInt("OUT_GOING_URL_ACCESSIBILITY_CHECK_TIMEOUT", defaultOutgoingAccessibilityCheckTimeout)
+	outgoingScrapeRequestTimeout = parseEnvAsInt("OUT_GOING_SCRAPE_REQ_TIMEOUT",
+		defaultOutgoingScrapeRequestTimeout)
+	outgoingAccessibilityCheckTimeout = parseEnvAsInt("OUT_GOING_URL_ACCESSIBILITY_CHECK_TIMEOUT",
+		defaultOutgoingAccessibilityCheckTimeout)
 }
 
 // Helper function to get environment variable or return a default

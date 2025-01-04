@@ -50,7 +50,8 @@ func TestFetchPageInfo(test_type *testing.T) {
 		test_type.Run(test_data.name, func(test_type *testing.T) {
 
 			if test_data.mockError != nil {
-				httpmock.RegisterResponder("GET", test_data.mockURL, httpmock.NewErrorResponder(test_data.mockError))
+				httpmock.RegisterResponder("GET", test_data.mockURL,
+					httpmock.NewErrorResponder(test_data.mockError))
 			} else {
 				httpmock.RegisterResponder("GET", test_data.mockURL,
 					httpmock.NewStringResponder(test_data.mockStatus, test_data.mockBody))

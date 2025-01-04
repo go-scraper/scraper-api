@@ -32,7 +32,8 @@ func TestRetrievePageInfo_NotFound(test_type *testing.T) {
 	// Assert that the info does not exist
 	assert.False(test_type, exists, "Non-existent ID should not be found")
 	// Assert that the returned PageInfo is empty
-	assert.Equal(test_type, &models.PageInfo{}, retrievedInfo, "Retrieved info should be an empty PageInfo for non-existent ID")
+	assert.Equal(test_type, &models.PageInfo{}, retrievedInfo,
+		"Retrieved info should be an empty PageInfo for non-existent ID")
 }
 
 func TestGenerateID(test_type *testing.T) {
@@ -41,7 +42,8 @@ func TestGenerateID(test_type *testing.T) {
 	id := StorePageInfo(pageInfo)
 
 	// Assert that the ID follows the expected format
-	assert.Regexp(test_type, `^\d{14}-[a-zA-Z0-9]{8}$`, id, "Generated ID should follow the correct format")
+	assert.Regexp(test_type, `^\d{14}-[a-zA-Z0-9]{8}$`, id,
+		"Generated ID should follow the correct format")
 }
 
 func TestRandomString(test_type *testing.T) {
@@ -52,6 +54,8 @@ func TestRandomString(test_type *testing.T) {
 
 	// Check that the string only contains valid characters
 	for _, char := range randomStr {
-		assert.Contains(test_type, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", string(char), "Random string should only contain valid characters")
+		assert.Contains(test_type,
+			"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", string(char),
+			"Random string should only contain valid characters")
 	}
 }

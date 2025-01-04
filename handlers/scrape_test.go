@@ -71,14 +71,16 @@ func TestScrapeHandler(test_type *testing.T) {
 	for _, test_data := range tests {
 		test_type.Run(test_data.name, func(test_type *testing.T) {
 
-			patchFetchPageInfo := monkey.Patch(services.FetchPageInfo, func(client *http.Client, url string) (*models.PageInfo, error) {
-				return test_data.mockPageInfo, test_data.mockError
-			})
+			patchFetchPageInfo := monkey.Patch(services.FetchPageInfo,
+				func(client *http.Client, url string) (*models.PageInfo, error) {
+					return test_data.mockPageInfo, test_data.mockError
+				})
 			defer patchFetchPageInfo.Unpatch()
 
-			patchStorePageInfo := monkey.Patch(storage.StorePageInfo, func(info *models.PageInfo) string {
-				return test_data.mockRequestID
-			})
+			patchStorePageInfo := monkey.Patch(storage.StorePageInfo,
+				func(info *models.PageInfo) string {
+					return test_data.mockRequestID
+				})
 			defer patchStorePageInfo.Unpatch()
 
 			router := gin.Default()
@@ -159,14 +161,16 @@ func TestPageHandler(test_type *testing.T) {
 	for _, test_data := range tests {
 		test_type.Run(test_data.name, func(test_type *testing.T) {
 
-			patchRetrievePageInfo := monkey.Patch(storage.RetrievePageInfo, func(id string) (*models.PageInfo, bool) {
-				return test_data.mockPageInfo, test_data.mockExists
-			})
+			patchRetrievePageInfo := monkey.Patch(storage.RetrievePageInfo,
+				func(id string) (*models.PageInfo, bool) {
+					return test_data.mockPageInfo, test_data.mockExists
+				})
 			defer patchRetrievePageInfo.Unpatch()
 
-			patchCalculatePageBounds := monkey.Patch(utils.CalculatePageBounds, func(pageNum, totalItems, pageSize int) (int, int) {
-				return 0, 1
-			})
+			patchCalculatePageBounds := monkey.Patch(utils.CalculatePageBounds,
+				func(pageNum, totalItems, pageSize int) (int, int) {
+					return 0, 1
+				})
 			defer patchCalculatePageBounds.Unpatch()
 
 			router := gin.Default()
