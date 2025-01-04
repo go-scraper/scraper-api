@@ -23,6 +23,24 @@ An API service to scrape a URL and get a summary.
 * We can replace the in-memory storage with a database.
 * We can use a messaging technique to pass data changes in real-time to the UI.
 
+## Configurations
+
+You can change following configurations on the `.env` file.
+
+```bash
+# Application port
+APP_PORT=8080
+
+# Page size for the URL status check
+URL_STATUS_CHECK_PAGE_SIZE=10
+
+# Outgoing scrape request timeout
+OUT_GOING_SCRAPE_REQ_TIMEOUT=30 # in seconds
+
+# Outgoing URL accessibility check timeout
+OUT_GOING_URL_ACCESSIBILITY_CHECK_TIMEOUT=10 # in seconds
+```
+
 ## How to run using Docker
 
 * Run `docker-compose up --build`
