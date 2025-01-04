@@ -80,6 +80,12 @@ total:					            (statements)		    86.6%
 
 ```
 
+## How to run go lang cli lint
+
+1. Make sure you have the `GOPATH` env variable pointed to `golang/go` path.
+2. Run `./golangci-lint run` command.
+* Maximum allowed line length is 100 chars.
+
 ## API Documentation
 
 #### Request
