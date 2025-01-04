@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
 	"scraper/config"
 	"scraper/logger"
@@ -25,6 +26,7 @@ func ScrapeHandler(context *gin.Context) {
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, // Disable TLS verification
 		},
+		Timeout: 30 * time.Second,
 	}
 
 	if baseURL == "" {
@@ -68,6 +70,7 @@ func PageHandler(context *gin.Context) {
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, // Disable TLS verification
 		},
+		Timeout: 10 * time.Second,
 	}
 	// Request ID is required to fetch infromation from the in-memory storage.
 	requestID := context.Param("id")
