@@ -26,7 +26,7 @@ func ScrapeHandler(context *gin.Context) {
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, // Disable TLS verification
 		},
-		Timeout: 30 * time.Second,
+		Timeout: time.Duration(config.GetOutgoingScrapeRequestTimeout()) * time.Second,
 	}
 
 	if baseURL == "" {
@@ -58,10 +58,10 @@ func ScrapeHandler(context *gin.Context) {
 	// Stored page infomation mapped to the returned request ID.
 	requestID := storage.StorePageInfo(pageInfo)
 	// Here we check the status of 10 (config.PageSize) scraped URLs.
-	inaccessibleCount := services.CheckURLStatus(client, pageInfo.URLs, 0, min(config.PageSize, len(pageInfo.URLs)))
-	totalPages := utils.CalculateTotalPages(len(pageInfo.URLs), config.PageSize)
+	inaccessibleCount := services.CheckURLStatus(client, pageInfo.URLs, 0, min(config.GetURLCheckPageSize(), len(pageInfo.URLs)))
+	totalPages := utils.CalculateTotalPages(len(pageInfo.URLs), config.GetURLCheckPageSize())
 
-	context.JSON(http.StatusOK, utils.BuildPageResponse(requestID, 1, totalPages, pageInfo, inaccessibleCount, 0, min(config.PageSize, len(pageInfo.URLs))))
+	context.JSON(http.StatusOK, utils.BuildPageResponse(requestID, 1, totalPages, pageInfo, inaccessibleCount, 0, min(config.GetURLCheckPageSize(), len(pageInfo.URLs))))
 }
 
 // This handles subsequent pagination requests to check status of URLs.
@@ -70,7 +70,7 @@ func PageHandler(context *gin.Context) {
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, // Disable TLS verification
 		},
-		Timeout: 10 * time.Second,
+		Timeout: time.Duration(config.GetOutgoingAccessibilityCheckTimeout()) * time.Second,
 	}
 	// Request ID is required to fetch infromation from the in-memory storage.
 	requestID := context.Param("id")
@@ -91,7 +91,7 @@ func PageHandler(context *gin.Context) {
 		return
 	}
 
-	start, end := utils.CalculatePageBounds(pageNum, len(pageInfo.URLs), config.PageSize)
+	start, end := utils.CalculatePageBounds(pageNum, len(pageInfo.URLs), config.GetURLCheckPageSize())
 	if start >= len(pageInfo.URLs) {
 		logger.Debug(fmt.Sprintf("Requested page [%d] not found", pageNum))
 		context.JSON(http.StatusNotFound, utils.BuildErrorResponse("page not found"))
@@ -100,7 +100,7 @@ func PageHandler(context *gin.Context) {
 
 	// Check the URL status for URLs on the given pagination page.
 	inaccessibleCount := services.CheckURLStatus(client, pageInfo.URLs, start, end)
-	totalPages := utils.CalculateTotalPages(len(pageInfo.URLs), config.PageSize)
+	totalPages := utils.CalculateTotalPages(len(pageInfo.URLs), config.GetURLCheckPageSize())
 
 	context.JSON(http.StatusOK, utils.BuildPageResponse(requestID, pageNum, totalPages, pageInfo, inaccessibleCount, start, end))
 }

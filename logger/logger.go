@@ -7,19 +7,26 @@ import (
 
 // Set custom loggers for each log level
 var (
-	DEBUG = log.New(os.Stdout, "[scraper-DEBUG] ", log.LstdFlags)
-	INFO  = log.New(os.Stdout, "[scraper-INFO] ", log.LstdFlags)
-	ERROR = log.New(os.Stderr, "[scraper-ERROR] ", log.LstdFlags)
+	debugLogger = log.New(os.Stdout, "[scraper-DEBUG] ", log.LstdFlags)
+	infoLogger  = log.New(os.Stdout, "[scraper-INFO] ", log.LstdFlags)
+	errorLogger = log.New(os.Stderr, "[scraper-ERROR] ", log.LstdFlags)
 )
 
 func Debug(text string) {
-	DEBUG.Println(text)
+	debugLogger.Println(text)
 }
 
 func Info(text string) {
-	INFO.Println(text)
+	infoLogger.Println(text)
 }
 
-func Error(err error) {
-	ERROR.Println(err)
+func Error(err interface{}) {
+	switch v := err.(type) {
+	case string:
+		errorLogger.Println(v)
+	case error:
+		errorLogger.Println(v)
+	default:
+		errorLogger.Println("Unknown error type")
+	}
 }

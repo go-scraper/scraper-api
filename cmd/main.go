@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
+	"scraper/config"
 	"scraper/handlers"
 
 	"github.com/gin-contrib/cors"
@@ -17,5 +19,5 @@ func main() {
 	router.GET("/scrape", handlers.ScrapeHandler)
 	router.GET("/scrape/:id/:page", handlers.PageHandler)
 
-	log.Fatal(router.Run(":8080"))
+	log.Fatal(router.Run(fmt.Sprintf(":%s", config.GetAppPort())))
 }
