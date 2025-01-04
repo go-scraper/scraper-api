@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"scraper/config"
@@ -18,5 +19,5 @@ func main() {
 	router.GET("/scrape", handlers.ScrapeHandler)
 	router.GET("/scrape/:id/:page", handlers.PageHandler)
 
-	log.Fatal(router.Run(":", config.GetAppPort()))
+	log.Fatal(router.Run(fmt.Sprintf(":%s", config.GetAppPort())))
 }
