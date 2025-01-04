@@ -41,3 +41,16 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -t go-scraper-api .
+
+      - name: Run golangci-lint
+        run: |
+          ./golangci-lint run
+
+      - name: Report golangci-lint output
+        run: |
+          if [ $? -ne 0 ]; then
+            echo "golangci-lint found issues [Max allowed line length: 100]:"
+            ./golangci-lint run
+          else
+            echo "golangci-lint found no issues. All good!"
+          fi

@@ -25,13 +25,16 @@ func TestCheckURLStatus(test_type *testing.T) {
 	}
 
 	// Mock response for valid URL
-	httpmock.RegisterResponder("GET", "http://example.com/valid", httpmock.NewStringResponder(200, "OK"))
+	httpmock.RegisterResponder("GET", "http://example.com/valid",
+		httpmock.NewStringResponder(200, "OK"))
 
 	// Mock response for invalid URL (non-2xx status)
-	httpmock.RegisterResponder("GET", "http://example.com/invalid", httpmock.NewStringResponder(404, "Not Found"))
+	httpmock.RegisterResponder("GET", "http://example.com/invalid",
+		httpmock.NewStringResponder(404, "Not Found"))
 
 	// Mock response for error (e.g., network failure)
-	httpmock.RegisterResponder("GET", "http://example.com/error", httpmock.NewErrorResponder(fmt.Errorf("network error")))
+	httpmock.RegisterResponder("GET", "http://example.com/error",
+		httpmock.NewErrorResponder(fmt.Errorf("network error")))
 
 	inaccessibleCount := CheckURLStatus(client, urls, 0, len(urls))
 

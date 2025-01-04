@@ -31,7 +31,8 @@ func ScrapeHandler(context *gin.Context) {
 
 	if baseURL == "" {
 		logger.Debug("URL query parameter is required")
-		context.JSON(http.StatusBadRequest, utils.BuildErrorResponse("url query parameter is required"))
+		context.JSON(http.StatusBadRequest,
+			utils.BuildErrorResponse("url query parameter is required"))
 		return
 	} else {
 		if !strings.HasPrefix(baseURL, "http://") && !strings.HasPrefix(baseURL, "https://") {
@@ -42,7 +43,8 @@ func ScrapeHandler(context *gin.Context) {
 		_, err := publicsuffix.EffectiveTLDPlusOne(baseUrlParsed.Host)
 		if err != nil {
 			logger.Error(err)
-			context.JSON(http.StatusBadRequest, utils.BuildErrorResponse("Invalid URL format, please provide a valid URL."))
+			context.JSON(http.StatusBadRequest,
+				utils.BuildErrorResponse("Invalid URL format, please provide a valid URL."))
 			return
 		}
 	}
@@ -50,7 +52,8 @@ func ScrapeHandler(context *gin.Context) {
 	pageInfo, err := services.FetchPageInfo(client, baseURL)
 	if err != nil {
 		logger.Error(err)
-		context.JSON(http.StatusInternalServerError, utils.BuildErrorResponse("Failed to fetch page info"))
+		context.JSON(http.StatusInternalServerError,
+			utils.BuildErrorResponse("Failed to fetch page info"))
 		return
 	}
 
@@ -58,10 +61,12 @@ func ScrapeHandler(context *gin.Context) {
 	// Stored page infomation mapped to the returned request ID.
 	requestID := storage.StorePageInfo(pageInfo)
 	// Here we check the status of 10 (config.PageSize) scraped URLs.
-	inaccessibleCount := services.CheckURLStatus(client, pageInfo.URLs, 0, min(config.GetURLCheckPageSize(), len(pageInfo.URLs)))
+	inaccessibleCount := services.CheckURLStatus(client, pageInfo.URLs, 0,
+		min(config.GetURLCheckPageSize(), len(pageInfo.URLs)))
 	totalPages := utils.CalculateTotalPages(len(pageInfo.URLs), config.GetURLCheckPageSize())
 
-	context.JSON(http.StatusOK, utils.BuildPageResponse(requestID, 1, totalPages, pageInfo, inaccessibleCount, 0, min(config.GetURLCheckPageSize(), len(pageInfo.URLs))))
+	context.JSON(http.StatusOK, utils.BuildPageResponse(requestID, 1, totalPages, pageInfo,
+		inaccessibleCount, 0, min(config.GetURLCheckPageSize(), len(pageInfo.URLs))))
 }
 
 // This handles subsequent pagination requests to check status of URLs.
@@ -102,5 +107,6 @@ func PageHandler(context *gin.Context) {
 	inaccessibleCount := services.CheckURLStatus(client, pageInfo.URLs, start, end)
 	totalPages := utils.CalculateTotalPages(len(pageInfo.URLs), config.GetURLCheckPageSize())
 
-	context.JSON(http.StatusOK, utils.BuildPageResponse(requestID, pageNum, totalPages, pageInfo, inaccessibleCount, start, end))
+	context.JSON(http.StatusOK, utils.BuildPageResponse(requestID, pageNum, totalPages, pageInfo,
+		inaccessibleCount, start, end))
 }
