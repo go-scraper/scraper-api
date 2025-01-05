@@ -97,6 +97,19 @@ func TestScrapeHandler(test_type *testing.T) {
 				"error": "Failed to reach the requested URL",
 			},
 		},
+		{
+			name: "Failed to Reach The Request URL",
+			queryParams: map[string]string{
+				"url": "http://example",
+			},
+			mockPageInfo:   nil,
+			mockError:      nil,
+			mockRequestID:  "",
+			expectedStatus: http.StatusBadRequest,
+			expectedBody: map[string]interface{}{
+				"error": "Invalid URL format, please provide a valid URL.",
+			},
+		},
 	}
 
 	for _, test_data := range tests {
