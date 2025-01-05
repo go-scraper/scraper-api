@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"crypto/tls"
+	"errors"
 	"fmt"
+	"net"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -52,8 +54,22 @@ func ScrapeHandler(context *gin.Context) {
 	pageInfo, err := services.FetchPageInfo(client, baseURL)
 	if err != nil {
 		logger.Error(err)
+		var netErr net.Error
+
+		if errors.As(err, &netErr) {
+			if netErr.Timeout() {
+				context.JSON(http.StatusGatewayTimeout,
+					utils.BuildErrorResponse("Request timeout during the page fetch"))
+				return
+			} else {
+				context.JSON(http.StatusBadGateway,
+					utils.BuildErrorResponse("Failed to reach the requested URL"))
+				return
+			}
+		}
+
 		context.JSON(http.StatusInternalServerError,
-			utils.BuildErrorResponse("Failed to fetch page info"))
+			utils.BuildErrorResponse("An unexpected error occurred"))
 		return
 	}
 
