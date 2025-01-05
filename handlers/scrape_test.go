@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"scraper/models"
@@ -54,7 +55,7 @@ func TestScrapeHandler(test_type *testing.T) {
 			},
 		},
 		{
-			name: "Error Fetching Page Info",
+			name: "Unexpected Error Fetching Page Info",
 			queryParams: map[string]string{
 				"url": "http://example.com",
 			},
@@ -63,7 +64,50 @@ func TestScrapeHandler(test_type *testing.T) {
 			mockRequestID:  "",
 			expectedStatus: http.StatusInternalServerError,
 			expectedBody: map[string]interface{}{
-				"error": "Failed to fetch page info",
+				"error": "An unexpected error occurred",
+			},
+		},
+		{
+			name: "Timeout Error Fetching Page Info",
+			queryParams: map[string]string{
+				"url": "http://example.com",
+			},
+			mockPageInfo: nil,
+			mockError: &net.DNSError{
+				IsTimeout: true,
+			},
+			mockRequestID:  "",
+			expectedStatus: http.StatusGatewayTimeout,
+			expectedBody: map[string]interface{}{
+				"error": "Request timeout during the page fetch",
+			},
+		},
+		{
+			name: "Failed to Reach The Request URL",
+			queryParams: map[string]string{
+				"url": "http://example.com",
+			},
+			mockPageInfo: nil,
+			mockError: &net.DNSError{
+				IsTimeout: false,
+			},
+			mockRequestID:  "",
+			expectedStatus: http.StatusBadGateway,
+			expectedBody: map[string]interface{}{
+				"error": "Failed to reach the requested URL",
+			},
+		},
+		{
+			name: "Failed to Reach The Request URL",
+			queryParams: map[string]string{
+				"url": "http://example",
+			},
+			mockPageInfo:   nil,
+			mockError:      nil,
+			mockRequestID:  "",
+			expectedStatus: http.StatusBadRequest,
+			expectedBody: map[string]interface{}{
+				"error": "Invalid URL format, please provide a valid URL.",
 			},
 		},
 	}
