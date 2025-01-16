@@ -5,6 +5,7 @@ import (
 	"net"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"scraper/models"
 	"scraper/services"
 	"scraper/storage"
@@ -23,6 +24,7 @@ func TestScrapeHandler(test_type *testing.T) {
 		mockPageInfo   *models.PageInfo
 		mockError      error
 		mockRequestID  string
+		mockSessionID  string
 		expectedStatus int
 		expectedBody   map[string]interface{}
 	}{
@@ -42,6 +44,7 @@ func TestScrapeHandler(test_type *testing.T) {
 			},
 			mockError:      nil,
 			mockRequestID:  "mockRequestID",
+			mockSessionID:  "mockSessionID",
 			expectedStatus: http.StatusOK,
 		},
 		{
@@ -62,6 +65,7 @@ func TestScrapeHandler(test_type *testing.T) {
 			mockPageInfo:   nil,
 			mockError:      assert.AnError,
 			mockRequestID:  "",
+			mockSessionID:  "",
 			expectedStatus: http.StatusInternalServerError,
 			expectedBody: map[string]interface{}{
 				"error": "An unexpected error occurred",
@@ -77,6 +81,7 @@ func TestScrapeHandler(test_type *testing.T) {
 				IsTimeout: true,
 			},
 			mockRequestID:  "",
+			mockSessionID:  "",
 			expectedStatus: http.StatusGatewayTimeout,
 			expectedBody: map[string]interface{}{
 				"error": "Request timeout during the page fetch",
@@ -92,6 +97,7 @@ func TestScrapeHandler(test_type *testing.T) {
 				IsTimeout: false,
 			},
 			mockRequestID:  "",
+			mockSessionID:  "",
 			expectedStatus: http.StatusBadGateway,
 			expectedBody: map[string]interface{}{
 				"error": "Failed to reach the requested URL",
@@ -105,6 +111,7 @@ func TestScrapeHandler(test_type *testing.T) {
 			mockPageInfo:   nil,
 			mockError:      nil,
 			mockRequestID:  "",
+			mockSessionID:  "",
 			expectedStatus: http.StatusBadRequest,
 			expectedBody: map[string]interface{}{
 				"error": "Invalid URL format, please provide a valid URL.",
@@ -121,10 +128,21 @@ func TestScrapeHandler(test_type *testing.T) {
 				})
 			defer patchFetchPageInfo.Unpatch()
 
-			patchStorePageInfo := monkey.Patch(storage.StorePageInfo,
-				func(info *models.PageInfo) string {
-					return test_data.mockRequestID
+			patchRetriveDatabase := monkey.Patch(storage.RetriveDatabase,
+				func(sessionID string) storage.Database {
+					return &storage.InMemoryDatabase{Data: make(map[string]models.PageInfo, 10_000)}
 				})
+			defer patchRetriveDatabase.Unpatch()
+
+			patchStorePageInfo := monkey.PatchInstanceMethod(
+				reflect.TypeOf(&storage.InMemoryDatabase{}), // Type of the struct
+				"StorePageInfo", // Method name to patch
+				func(db *storage.InMemoryDatabase, info *models.PageInfo) string {
+					// Mocked implementation
+					db.Data[test_data.mockRequestID] = *info
+					return test_data.mockRequestID
+				},
+			)
 			defer patchStorePageInfo.Unpatch()
 
 			router := gin.Default()
@@ -205,10 +223,19 @@ func TestPageHandler(test_type *testing.T) {
 	for _, test_data := range tests {
 		test_type.Run(test_data.name, func(test_type *testing.T) {
 
-			patchRetrievePageInfo := monkey.Patch(storage.RetrievePageInfo,
-				func(id string) (*models.PageInfo, bool) {
-					return test_data.mockPageInfo, test_data.mockExists
+			patchRetriveDatabase := monkey.Patch(storage.RetriveDatabase,
+				func(sessionID string) storage.Database {
+					return &storage.InMemoryDatabase{Data: make(map[string]models.PageInfo, 10_000)}
 				})
+			defer patchRetriveDatabase.Unpatch()
+
+			patchRetrievePageInfo := monkey.PatchInstanceMethod(
+				reflect.TypeOf(&storage.InMemoryDatabase{}), // Type of the struct
+				"RetrievePageInfo",                          // Method name to patch
+				func(db *storage.InMemoryDatabase, id string) (*models.PageInfo, bool) {
+					return test_data.mockPageInfo, test_data.mockExists
+				},
+			)
 			defer patchRetrievePageInfo.Unpatch()
 
 			patchCalculatePageBounds := monkey.Patch(utils.CalculatePageBounds,
