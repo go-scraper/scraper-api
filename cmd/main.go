@@ -17,7 +17,7 @@ func main() {
 	router.Use(cors.Default())
 
 	router.GET("/scrape", handlers.ScrapeHandler)
-	router.GET("/scrape/:id/:page", handlers.PageHandler)
+	router.GET("/scrape/:session_id/:id/:page", handlers.PageHandler)
 
 	log.Fatal(router.Run(fmt.Sprintf(":%s", config.GetAppPort())))
 }

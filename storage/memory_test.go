@@ -12,12 +12,13 @@ func TestStorePageInfo(test_type *testing.T) {
 		Title: "Test Page",
 	}
 
-	id := StorePageInfo(pageInfo)
+	database := RetriveDatabase("test-session")
+	id := database.StorePageInfo(pageInfo)
 
 	// Ensure the ID is not empty
 	assert.NotEmpty(test_type, id, "Generated ID should not be empty")
 
-	retrievedInfo, exists := RetrievePageInfo(id)
+	retrievedInfo, exists := database.RetrievePageInfo(id)
 
 	// Assert that the PageInfo exists
 	assert.True(test_type, exists, "Stored PageInfo should be retrievable")
@@ -26,8 +27,9 @@ func TestStorePageInfo(test_type *testing.T) {
 }
 
 func TestRetrievePageInfo_NotFound(test_type *testing.T) {
+	database := RetriveDatabase("test-session")
 	// Try retrieving a non-existent PageInfo
-	retrievedInfo, exists := RetrievePageInfo("nonexistent-id")
+	retrievedInfo, exists := database.RetrievePageInfo("nonexistent-id")
 
 	// Assert that the info does not exist
 	assert.False(test_type, exists, "Non-existent ID should not be found")
@@ -39,7 +41,8 @@ func TestRetrievePageInfo_NotFound(test_type *testing.T) {
 func TestGenerateID(test_type *testing.T) {
 	// Call the private function indirectly by calling StorePageInfo
 	pageInfo := &models.PageInfo{Title: "Test Page"}
-	id := StorePageInfo(pageInfo)
+	database := RetriveDatabase("test-session")
+	id := database.StorePageInfo(pageInfo)
 
 	// Assert that the ID follows the expected format
 	assert.Regexp(test_type, `^\d{14}-[a-zA-Z0-9]{8}$`, id,

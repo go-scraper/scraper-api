@@ -27,20 +27,21 @@ func min(a, b int) int {
 }
 
 // This is to build the response after a successful scraping.
-func BuildPageResponse(requestID string, pageNum, totalPages int, pageInfo *models.PageInfo,
-	inaccessible, start, end int) models.PageResponse {
+func BuildPageResponse(requestID string, sessionID string, pageNum, totalPages int,
+	pageInfo *models.PageInfo, inaccessible, start, end int) models.PageResponse {
 	var prevPage, nextPage *string
 	if pageNum > 1 {
-		prev := fmt.Sprintf("/scrape/%s/%d", requestID, pageNum-1)
+		prev := fmt.Sprintf("/scrape/%s/%s/%d", sessionID, requestID, pageNum-1)
 		prevPage = &prev
 	}
 	if end < len(pageInfo.URLs) {
-		next := fmt.Sprintf("/scrape/%s/%d", requestID, pageNum+1)
+		next := fmt.Sprintf("/scrape/%s/%s/%d", sessionID, requestID, pageNum+1)
 		nextPage = &next
 	}
 
 	return models.PageResponse{
 		RequestID: requestID,
+		SessionId: sessionID,
 		Pagination: models.Pagination{
 			PageSize:    config.GetURLCheckPageSize(),
 			CurrentPage: pageNum,
