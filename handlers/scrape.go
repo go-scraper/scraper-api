@@ -24,6 +24,13 @@ import (
 // This handles the initial scraping request received from the client.
 func ScrapeHandler(context *gin.Context) {
 	baseURL := context.Query("url")
+	// Session ID is used to map the session to the in-memory storage.
+	sessionId := context.Query("session_id")
+	// Generate a session ID if not provided by the client.
+	if sessionId == "" {
+		sessionId = storage.GenerateID()
+	}
+
 	client := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, // Disable TLS verification
@@ -73,15 +80,20 @@ func ScrapeHandler(context *gin.Context) {
 		return
 	}
 
+	// Retrieve the database from the in-memory storage using the session ID.
+	database := storage.RetriveDatabase(sessionId)
+
 	// We store scraped page info in-memory to use with pagination later.
 	// Stored page infomation mapped to the returned request ID.
-	requestID := storage.StorePageInfo(pageInfo)
+	// requestID := storage.StorePageInfo(pageInfo)
+	requestId := database.StorePageInfo(pageInfo)
+
 	// Here we check the status of 10 (config.PageSize) scraped URLs.
 	inaccessibleCount := services.CheckURLStatus(client, pageInfo.URLs, 0,
 		min(config.GetURLCheckPageSize(), len(pageInfo.URLs)))
 	totalPages := utils.CalculateTotalPages(len(pageInfo.URLs), config.GetURLCheckPageSize())
 
-	context.JSON(http.StatusOK, utils.BuildPageResponse(requestID, 1, totalPages, pageInfo,
+	context.JSON(http.StatusOK, utils.BuildPageResponse(requestId, sessionId, 1, totalPages, pageInfo,
 		inaccessibleCount, 0, min(config.GetURLCheckPageSize(), len(pageInfo.URLs))))
 }
 
@@ -93,12 +105,20 @@ func PageHandler(context *gin.Context) {
 		},
 		Timeout: time.Duration(config.GetOutgoingAccessibilityCheckTimeout()) * time.Second,
 	}
+
+	// Session ID is required to fetch the in-memory storage.
+	sessionId := context.Param("session_id")
 	// Request ID is required to fetch infromation from the in-memory storage.
 	requestID := context.Param("id")
 	pageNumStr := context.Param("page")
 
+	// Retrieve the database from the in-memory storage using the session ID.
+	database := storage.RetriveDatabase(sessionId)
+
 	// Retrieve page information from in-memory storage using the request ID.
-	pageInfo, exists := storage.RetrievePageInfo(requestID)
+	// pageInfo, exists := storage.RetrievePageInfo(requestID)
+	pageInfo, exists := database.RetrievePageInfo(requestID)
+
 	if !exists {
 		logger.Debug(fmt.Sprintf("Requested ID [%s] not found in the local storage", requestID))
 		context.JSON(http.StatusNotFound, utils.BuildErrorResponse("request ID not found"))
@@ -123,6 +143,6 @@ func PageHandler(context *gin.Context) {
 	inaccessibleCount := services.CheckURLStatus(client, pageInfo.URLs, start, end)
 	totalPages := utils.CalculateTotalPages(len(pageInfo.URLs), config.GetURLCheckPageSize())
 
-	context.JSON(http.StatusOK, utils.BuildPageResponse(requestID, pageNum, totalPages, pageInfo,
-		inaccessibleCount, start, end))
+	context.JSON(http.StatusOK, utils.BuildPageResponse(requestID, sessionId, pageNum,
+		totalPages, pageInfo, inaccessibleCount, start, end))
 }

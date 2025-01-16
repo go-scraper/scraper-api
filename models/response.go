@@ -26,6 +26,7 @@ type PaginatedURLs struct {
 
 type PageResponse struct {
 	RequestID  string      `json:"request_id"`
+	SessionId  string      `json:"session_id"`
 	Pagination Pagination  `json:"pagination"`
 	Scraped    ScrapedData `json:"scraped"`
 }
